@@ -1,0 +1,13 @@
+Antioxidantes	Concentración	Peróxido
+BHA	0.05	5.9
+BHA	0.05	6.0
+BHA	0.05	6.1
+BHA	0.01	6.6
+BHA	0.01	6.7
+BHA	0.01	6.6
+Cítrico	0.05	8.2
+Cítrico	0.05	8.6
+Cítrico	0.05	8.7
+Cítrico	0.01	9.2
+Cítrico	0.01	9.4
+Cítrico	0.01	9.8
