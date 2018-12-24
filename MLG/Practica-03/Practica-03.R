@@ -24,10 +24,9 @@ NAME.FILE.MOD3.BUG <- "Practica-03-mod3.bug"
 #Ruta archivo
 PATH.FILE <- "https://raw.githubusercontent.com/jgomezz/MscEstadisticaAplicada-UNALM-2018-2/master/MLG/Practica-03/molinos.csv"
 
+#Lectura de datos
 molinos.data <- read.csv(PATH.FILE, header = TRUE)
-
 head(molinos.data)
-
 
 
 # Se tiene que usar una variable intermedio para
@@ -92,6 +91,8 @@ print(fit1,4)
 
 #Diagnostico de Convergencia
 plot(fit1)
+
+#Mostrar resultado por navegador de trace, density, autocorrelation
 mcmcplot(fit1)
 
 
@@ -149,6 +150,8 @@ print(fit2,4)
 
 #Diagnostico de Convergencia
 plot(fit2)
+
+#Mostrar resultado por navegador de trace, density, autocorrelation
 mcmcplot(fit2)
 
 
@@ -206,6 +209,8 @@ print(fit3,4)
 
 #Diagnostico de Convergencia
 plot(fit3)
+
+#Mostrar resultado por navegador de trace, density, autocorrelation
 mcmcplot(fit3)
 
 
