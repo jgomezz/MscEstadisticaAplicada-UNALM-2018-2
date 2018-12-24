@@ -56,7 +56,7 @@ modelo <- function(){
   # porque le estoy dando un rango amplio ( 0.0 en casi todos los modelos)
   beta.0 ~ dnorm(0.0,1.0E-4);      # 1er parametro  
   beta.1 ~ dnorm(0.0,1.0E-4);      # 2do parametro
-  tau    ~ dgamma(1.0E-3,1.0E-3);  # 3er parametro , la presicion , uso gamma 
+  tau    ~ dgamma(1.0E-3,1.0E-3);  # 3er parametro , la precisión , uso gamma 
 
   # con valores pequeño para tener una varianza grande
   sigma2 <- 1/tau;
@@ -115,7 +115,7 @@ modelo <- function(){
   # porque le estoy dando un rango amplio ( 0.0 en casi todos los modelos)
   beta.0 ~ dnorm(0.0,1.0E-4);      # 1er parametro  
   beta.1 ~ dnorm(0.0,1.0E-4);      # 2do parametro
-  tau    ~ dgamma(1.0E-3,1.0E-3);  # 3er parametro , la presicion , uso gamma 
+  tau    ~ dgamma(1.0E-3,1.0E-3);  # 3er parametro , la precisión , uso gamma 
   
   # con valores pequeño para tener una varianza grande
   sigma2 <- 1/tau;
@@ -174,7 +174,7 @@ modelo <- function(){
   # porque le estoy dando un rango amplio ( 0.0 en casi todos los modelos)
   beta.0 ~ dnorm(0.0,1.0E-4);      # 1er parametro  
   beta.1 ~ dnorm(0.0,1.0E-4);      # 2do parametro
-  tau    ~ dgamma(1.0E-3,1.0E-3);  # 3er parametro , la presicion , uso gamma 
+  tau    ~ dgamma(1.0E-3,1.0E-3);  # 3er parametro , la precisión , uso gamma 
   
   # con valores pequeño para tener una varianza grande
   sigma2 <- 1/tau;
