@@ -26,8 +26,12 @@ molinos.data <- read.csv(PATH.FILE, header = TRUE)
 
 head(molinos.data)
 
+# Inferencia Clásica
+fit.model<-lm(molinos.data$corriente ~ molinos.data$viento)
+summary(fit.model)
+
 ####################################################################
-# MODELO LINEAL NORMAL :  Modelo 1: Eta_i= Beta_0 + Beta_1*x_i
+# Modelo Lineal Normal - Modelo 1 : Eta_i= Beta_0 + Beta_1*x_i
 ####################################################################
 
 # Se tiene que usar una variable intermedio para
@@ -78,6 +82,7 @@ fit1 <- bugs(data = datos,
              clearWD=TRUE, 
              debug=FALSE)
 
+#Mostrar resultados de la simulación
 print(fit1,4)
 
 #Diagnostico de Convergencia
