@@ -77,16 +77,16 @@ write.model(molinos.model.1.bugs, NAME.FILE.MOD1.BUG)
 
 # Inferencia Bayesiana
 molinos.fit.model.1.bugs <- bugs(data = molinos.data.bugs,
-             inits =  molinos.inits.bugs,
-             parameters.to.save =  molinos.param.bugs,
-             model.file= NAME.FILE.MOD1.BUG,
-             n.chains=2, 
-             n.iter=20000,
-             n.burnin=10000,
-             n.thin=1,
-             bugs.directory=WINBUGS.DIR,
-             clearWD=TRUE, 
-             debug=FALSE)
+                                 inits =  molinos.inits.bugs,
+                                 parameters.to.save =  molinos.param.bugs,
+                                 model.file= NAME.FILE.MOD1.BUG,
+                                 n.chains=2, 
+                                 n.iter=20000,
+                                 n.burnin=10000,
+                                 n.thin=1,
+                                 bugs.directory=WINBUGS.DIR,
+                                 clearWD=TRUE, 
+                                 debug=FALSE)
 
 #Mostrar resultados de la simulación
 print(molinos.fit.model.1.bugs,4)
@@ -127,16 +127,16 @@ write.model(molinos.model.2.bugs, NAME.FILE.MOD2.BUG)
 
 # Inferencia Bayesiana
 molinos.fit.model.2.bugs <- bugs(data = molinos.data.bugs,
-             inits =  molinos.inits.bugs,
-             parameters.to.save =  molinos.param.bugs,
-             model.file= NAME.FILE.MOD2.BUG,
-             n.chains=2, 
-             n.iter=20000,
-             n.burnin=10000,
-             n.thin=1,
-             bugs.directory=WINBUGS.DIR,
-             clearWD=TRUE, 
-             debug=FALSE)
+                                 inits =  molinos.inits.bugs,
+                                 parameters.to.save =  molinos.param.bugs,
+                                 model.file= NAME.FILE.MOD2.BUG,
+                                 n.chains=2, 
+                                 n.iter=20000,
+                                 n.burnin=10000,
+                                 n.thin=1,
+                                 bugs.directory=WINBUGS.DIR,
+                                 clearWD=TRUE, 
+                                 debug=FALSE)
 
 #Mostrar resultados de la simulación
 print(molinos.fit.model.2.bugs,4)
@@ -177,16 +177,16 @@ write.model(molinos.model.3.bugs, NAME.FILE.MOD3.BUG)
 
 # Inferencia Bayesiana
 molinos.fit.model.3.bugs <- bugs(data = molinos.data.bugs,
-             inits =  molinos.inits.bugs,
-             parameters.to.save =  molinos.param.bugs,
-             model.file= NAME.FILE.MOD3.BUG,
-             n.chains=2, 
-             n.iter=20000,
-             n.burnin=10000,
-             n.thin=1,
-             bugs.directory=WINBUGS.DIR,
-             clearWD=TRUE, 
-             debug=FALSE)
+                                 inits =  molinos.inits.bugs,
+                                 parameters.to.save =  molinos.param.bugs,
+                                 model.file= NAME.FILE.MOD3.BUG,
+                                 n.chains=2, 
+                                 n.iter=20000,
+                                 n.burnin=10000,
+                                 n.thin=1,
+                                 bugs.directory=WINBUGS.DIR,
+                                 clearWD=TRUE, 
+                                 debug=FALSE)
 
 #Mostrar resultados de la simulación
 print(molinos.fit.model.3.bugs,4)
