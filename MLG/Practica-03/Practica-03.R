@@ -17,9 +17,9 @@ library(mcmcplots)
 WINBUGS.DIR <- "D:/bin/WinBUGS14/"
 
 #Nombre de archivo
-NAME.FILE.MOD1.BUG <- "Practica-03-mod1.bug"
-NAME.FILE.MOD2.BUG <- "Practica-03-mod2.bug"
-NAME.FILE.MOD3.BUG <- "Practica-03-mod3.bug"
+NAME.FILE.MOD1.BUG <- "Practica03-modelo01.bug"
+NAME.FILE.MOD2.BUG <- "Practica03-modelo02.bug"
+NAME.FILE.MOD3.BUG <- "Practica03-modelo03.bug"
 
 #Ruta archivo
 PATH.FILE <- "https://raw.githubusercontent.com/jgomezz/MscEstadisticaAplicada-UNALM-2018-2/master/MLG/Practica-03/molinos.csv"
@@ -28,34 +28,44 @@ PATH.FILE <- "https://raw.githubusercontent.com/jgomezz/MscEstadisticaAplicada-U
 molinos.data <- read.csv(PATH.FILE, header = TRUE)
 head(molinos.data)
 
+#Análisis descriptivo
+plot(molinos.data$viento, molinos.data$corriente)
 
-# Se tiene que usar una variable intermedio para
-# pasar los valores, se usa vectores
-viento <- molinos.data$viento
-corriente <- molinos.data$corriente
-n <- nrow(molinos.data)
+#Datos para el análisis
+molinos.data.bugs <- list(viento = molinos.data$viento ,
+                          corriente = molinos.data$corriente ,
+                          N = nrow(molinos.data))
 
-datos <- list("viento","corriente","n")
+# Parametros
+molinos.param.bugs <- c("alpha","beta1","tau","sigma2")
+
+
+# Inicializa : asigna valores aleatorios para inicializarlos
+molinos.inits.bugs <- function() {
+                          list( alpha = rnorm(1), 
+                                beta1 = rnorm(1), 
+                                tau   = rgamma(1,1,1) )}
 
 ####################################################################
 # Modelo Lineal Normal - Modelo 1 : Eta_i= Beta_0 + Beta_1*x_i
 ####################################################################
 
 # Inferencia Clásica
-fit1.model<-lm(molinos.data$corriente ~ molinos.data$viento)
-summary(fit1.model)
+molinos.model.1.clasic<-lm(molinos.data$corriente ~ molinos.data$viento)
+summary(molinos.model.1.clasic)
+
 
 # Aplicando Bayesianos
-modelo <- function(){
+molinos.model.1.bugs <- function(){
   # verosimilitud
-  for (i in 1:n) {
-    mu[i] <- beta.0 + beta.1*viento[i];
+  for (i in 1:N) {
+    mu[i] <- alpha + beta1*viento[i];
     corriente[i] ~ dnorm(mu[i],tau);
   }
   # Las priori : estoy usando priori no informativos 
   # porque le estoy dando un rango amplio ( 0.0 en casi todos los modelos)
-  beta.0 ~ dnorm(0.0,1.0E-4);      # 1er parametro  
-  beta.1 ~ dnorm(0.0,1.0E-4);      # 2do parametro
+  alpha ~ dnorm(0.0,1.0E-4);      # 1er parametro  
+  beta1 ~ dnorm(0.0,1.0E-4);      # 2do parametro
   tau    ~ dgamma(1.0E-3,1.0E-3);  # 3er parametro , la precisión , uso gamma 
 
   # con valores pequeño para tener una varianza grande
@@ -63,20 +73,12 @@ modelo <- function(){
 }
 
 # Grabar archivo
-write.model(modelo, NAME.FILE.MOD1.BUG)
-
-# Parametros
-parametros <- c("beta.0","beta.1","tau","sigma2")
-
-# Inicializa : asigna valores aleatorios para inicializarlos
-iniciales <- function() { list(beta.0=rnorm(1), 
-                          beta.1=rnorm(1), 
-                          tau=rgamma(1,1,1))}
+write.model(molinos.model.1.bugs, NAME.FILE.MOD1.BUG)
 
 # Inferencia Bayesiana
-fit1 <- bugs(data = datos,
-             inits =  iniciales,
-             parameters.to.save =  parametros,
+molinos.fit.model.1.bugs <- bugs(data = molinos.data.bugs,
+             inits =  molinos.inits.bugs,
+             parameters.to.save =  molinos.param.bugs,
              model.file= NAME.FILE.MOD1.BUG,
              n.chains=2, 
              n.iter=20000,
@@ -87,34 +89,33 @@ fit1 <- bugs(data = datos,
              debug=FALSE)
 
 #Mostrar resultados de la simulación
-print(fit1,4)
+print(molinos.fit.model.1.bugs,4)
 
 #Diagnostico de Convergencia
-plot(fit1)
+plot(molinos.fit.model.1.bugs)
 
 #Mostrar resultado por navegador de trace, density, autocorrelation
-mcmcplot(fit1)
-
+mcmcplot(molinos.fit.model.1.bugs)
 
 ####################################################################
 # Modelo Lineal Normal - Modelo 2 : Eta_i= Beta_0 + Beta_1*1/x_i
 ####################################################################
 
 # Inferencia Clásica -
-fit2.model<-lm(molinos.data$corriente ~ I(1/molinos.data$viento))
-summary(fit2.model)
+molinos.model.2.clasic<-lm(molinos.data$corriente ~ I(1/molinos.data$viento))
+summary(molinos.model.2.clasic)
 
 # Aplicando Bayesianos
-modelo <- function(){
+molinos.model.2.bugs <- function(){
   # verosimilitud
-  for (i in 1:n) {
-    mu[i] <- beta.0 + beta.1*(1/viento[i]);
+  for (i in 1:N) {
+    mu[i] <- alpha + beta1*(1/viento[i]);
     corriente[i] ~ dnorm(mu[i],tau);
   }
   # Las priori : estoy usando priori no informativos 
   # porque le estoy dando un rango amplio ( 0.0 en casi todos los modelos)
-  beta.0 ~ dnorm(0.0,1.0E-4);      # 1er parametro  
-  beta.1 ~ dnorm(0.0,1.0E-4);      # 2do parametro
+  alpha ~ dnorm(0.0,1.0E-4);      # 1er parametro  
+  beta1 ~ dnorm(0.0,1.0E-4);      # 2do parametro
   tau    ~ dgamma(1.0E-3,1.0E-3);  # 3er parametro , la precisión , uso gamma 
   
   # con valores pequeño para tener una varianza grande
@@ -122,20 +123,12 @@ modelo <- function(){
 }
 
 # Grabar archivo
-write.model(modelo, NAME.FILE.MOD2.BUG)
-
-# Parametros
-parametros <- c("beta.0","beta.1","tau","sigma2")
-
-# Inicializa : asigna valores aleatorios para inicializarlos
-iniciales <- function() { list(beta.0=rnorm(1), 
-                               beta.1=rnorm(1), 
-                               tau=rgamma(1,1,1))}
+write.model(molinos.model.2.bugs, NAME.FILE.MOD2.BUG)
 
 # Inferencia Bayesiana
-fit2 <- bugs(data = datos,
-             inits =  iniciales,
-             parameters.to.save =  parametros,
+molinos.fit.model.2.bugs <- bugs(data = molinos.data.bugs,
+             inits =  molinos.inits.bugs,
+             parameters.to.save =  molinos.param.bugs,
              model.file= NAME.FILE.MOD2.BUG,
              n.chains=2, 
              n.iter=20000,
@@ -146,34 +139,33 @@ fit2 <- bugs(data = datos,
              debug=FALSE)
 
 #Mostrar resultados de la simulación
-print(fit2,4)
+print(molinos.fit.model.2.bugs,4)
 
 #Diagnostico de Convergencia
-plot(fit2)
+plot(molinos.fit.model.2.bugs)
 
 #Mostrar resultado por navegador de trace, density, autocorrelation
-mcmcplot(fit2)
-
+mcmcplot(molinos.fit.model.2.bugs)
 
 ####################################################################
 # Modelo Lineal Normal - Modelo 3 : Eta_i= Beta_0 + Beta_1*log(x_i)
 ####################################################################
 
 # Inferencia Clásica -
-fit3.model<-lm(molinos.data$corriente ~ I(log(molinos.data$viento)))
-summary(fit3.model)
+molinos.model.3.clasic<-lm(molinos.data$corriente ~ I(log(molinos.data$viento)))
+summary(molinos.model.3.clasic)
 
 # Aplicando Bayesianos
-modelo <- function(){
+molinos.model.3.bugs <- function(){
   # verosimilitud
-  for (i in 1:n) {
-    mu[i] <- beta.0 + beta.1*log(viento[i]);
+  for (i in 1:N) {
+    mu[i] <- alpha + beta1*log(viento[i]);
     corriente[i] ~ dnorm(mu[i],tau);
   }
   # Las priori : estoy usando priori no informativos 
   # porque le estoy dando un rango amplio ( 0.0 en casi todos los modelos)
-  beta.0 ~ dnorm(0.0,1.0E-4);      # 1er parametro  
-  beta.1 ~ dnorm(0.0,1.0E-4);      # 2do parametro
+  alpha ~ dnorm(0.0,1.0E-4);      # 1er parametro  
+  beta1 ~ dnorm(0.0,1.0E-4);      # 2do parametro
   tau    ~ dgamma(1.0E-3,1.0E-3);  # 3er parametro , la precisión , uso gamma 
   
   # con valores pequeño para tener una varianza grande
@@ -181,20 +173,12 @@ modelo <- function(){
 }
 
 # Grabar archivo
-write.model(modelo, NAME.FILE.MOD3.BUG)
-
-# Parametros
-parametros <- c("beta.0","beta.1","tau","sigma2")
-
-# Inicializa : asigna valores aleatorios para inicializarlos
-iniciales <- function() { list(beta.0=rnorm(1), 
-                               beta.1=rnorm(1), 
-                               tau=rgamma(1,1,1))}
+write.model(molinos.model.3.bugs, NAME.FILE.MOD3.BUG)
 
 # Inferencia Bayesiana
-fit3 <- bugs(data = datos,
-             inits =  iniciales,
-             parameters.to.save =  parametros,
+molinos.fit.model.3.bugs <- bugs(data = molinos.data.bugs,
+             inits =  molinos.inits.bugs,
+             parameters.to.save =  molinos.param.bugs,
              model.file= NAME.FILE.MOD3.BUG,
              n.chains=2, 
              n.iter=20000,
@@ -205,12 +189,23 @@ fit3 <- bugs(data = datos,
              debug=FALSE)
 
 #Mostrar resultados de la simulación
-print(fit3,4)
+print(molinos.fit.model.3.bugs,4)
 
 #Diagnostico de Convergencia
-plot(fit3)
+plot(molinos.fit.model.3.bugs)
 
 #Mostrar resultado por navegador de trace, density, autocorrelation
-mcmcplot(fit3)
+mcmcplot(molinos.fit.model.3.bugs)
 
+# Validación del DIC en los modelos
+df <- data.frame(
+          modelo = c(" Modelo 1", 
+                     " Modelo 2", 
+                     " Modelo 3"),
+          DIC = c(molinos.fit.model.1.bugs$DIC,
+                  molinos.fit.model.2.bugs$DIC,
+                  molinos.fit.model.3.bugs$DIC)
+          )
+
+df[order(df$DIC),]
 
