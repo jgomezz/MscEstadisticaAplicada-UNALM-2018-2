@@ -182,4 +182,33 @@ df <- data.frame(
 
 df[order(df$DIC),]
 
+####################################################################
+# Predicción : Se elige el módelo 2 basado en el DIC
+####################################################################
 
+# Se obtiene la matriz de simulación
+sims.matrix <- molinos.fit.model.2.bugs$BUGSoutput$sims.matrix
+
+# Se obtiene los coeficientes de las variables predictoras
+p.alpha <- sims.matrix[,"alpha"]
+p.beta1 <- sims.matrix[,"beta1"]
+p.sigma <- 1/sqrt(sims.matrix[,"tau"])
+M       <- nrow(sims.matrix)
+
+# Velocidad de viento es 5.8
+viento <- 5.8 
+
+# Se realiza la predicción
+mu.new  <- p.alpha + p.beta1*(1/viento)
+y.new   <- rnorm(M,mu.new,p.sigma)
+
+summary(mu.new)
+#hist(mu.new)
+quantile(mu.new,probs=c(0.025,0.975))
+
+summary(y.new)
+#hist(y.new)
+quantile(y.new,probs=c(0.025,0.975))
+
+# Resultado
+sprintf("Para un viento de %.2f se tiene una corriente de %.2f",viento, mean(y.new))
