@@ -1,0 +1,185 @@
+####################################################################
+#                     Practica No.3 - JAGS
+# Pregunta 1
+####################################################################
+
+#install.packages("R2jags")
+#install.packages("mcmctab")
+
+library(foreign)
+library(R2jags)
+library(coda)
+library(boot)
+library(mcmcplots)
+# load package mcmctab
+devtools::source_url("https://raw.githubusercontent.com/jkarreth/JKmisc/master/mcmctab.R")
+
+#Ruta archivo
+PATH.FILE <- "https://raw.githubusercontent.com/jgomezz/MscEstadisticaAplicada-UNALM-2018-2/master/MLG/Practica-03/molinos.csv"
+
+#Lectura de datos
+molinos.data <- read.csv(PATH.FILE, header = TRUE)
+head(molinos.data)
+
+#Análisis descriptivo
+plot(molinos.data$viento, molinos.data$corriente)
+
+#Datos para el análisis
+molinos.data.bugs <- list(viento = molinos.data$viento ,
+                          corriente = molinos.data$corriente ,
+                          N = nrow(molinos.data))
+
+# Parametros
+molinos.param.bugs <- c("alpha","beta1","tau","sigma2")
+
+
+# Inicializa : asigna valores aleatorios para inicializarlos
+molinos.inits.bugs <- function() {
+                        list( alpha = rnorm(1), 
+                              beta1 = rnorm(1), 
+                              tau   = rgamma(1,1,1) )}
+
+####################################################################
+# Modelo Lineal Normal - Modelo 1 : Eta_i= Beta_0 + Beta_1*x_i
+####################################################################
+
+# Inferencia Clásica
+molinos.model.1.clasic<-lm(molinos.data$corriente ~ molinos.data$viento)
+summary(molinos.model.1.clasic)
+
+# Aplicando Bayesianos
+molinos.model.1.jags <- function(){
+    # verosimilitud
+    for (i in 1:N) {
+      mu[i] <- alpha + beta1*viento[i];
+      corriente[i] ~ dnorm(mu[i],tau);
+    }
+
+    alpha  ~ dnorm(0.0,1.0E-4);      # 1er parametro  
+    beta1  ~ dnorm(0.0,1.0E-4);      # 2do parametro
+    tau    ~ dgamma(1.0E-3,1.0E-3);  # 3er parametro , la precisión , uso gamma 
+    
+    # con valores pequeño para tener una varianza grande
+    sigma2 <- 1/tau;
+}
+
+# Inferencia Bayesiana
+molinos.fit.model.1.bugs <- jags(data=molinos.data.bugs, 
+                                 inits=molinos.inits.bugs, 
+                                 molinos.param.bugs, 
+                                 n.chains=2, 
+                                 n.iter=20000, 
+                                 n.burnin=10000, 
+                                 model.file=molinos.model.1.jags)
+
+#Mostrar resultados de la simulación
+print(molinos.fit.model.1.bugs,4)
+
+#Diagnostico de Convergencia
+plot(molinos.fit.model.1.bugs)
+
+#Mostrar resultado por navegador de trace, density, autocorrelation
+#mcmctab(molinos.fit.model.1.bugs)
+#mcmcplot(molinos.fit.model.1.bugs)
+
+
+####################################################################
+# Modelo Lineal Normal - Modelo 2 : Eta_i= Beta_0 + Beta_1*1/x_i
+####################################################################
+
+# Inferencia Clásica
+molinos.model.2.clasic<-lm(molinos.data$corriente ~ I(1/molinos.data$viento))
+summary(molinos.model.2.clasic)
+
+# Aplicando Bayesianos
+molinos.model.2.jags <- function(){
+  # verosimilitud
+  for (i in 1:N) {
+    mu[i] <- alpha + beta1*(1/viento[i]);
+    corriente[i] ~ dnorm(mu[i],tau);
+  }
+  
+  alpha  ~ dnorm(0.0,1.0E-4);      # 1er parametro  
+  beta1  ~ dnorm(0.0,1.0E-4);      # 2do parametro
+  tau    ~ dgamma(1.0E-3,1.0E-3);  # 3er parametro , la precisión , uso gamma 
+  
+  # con valores pequeño para tener una varianza grande
+  sigma2 <- 1/tau;
+}
+
+# Inferencia Bayesiana
+molinos.fit.model.2.bugs <- jags(data=molinos.data.bugs, 
+                                 inits=molinos.inits.bugs, 
+                                 molinos.param.bugs, 
+                                 n.chains=2, 
+                                 n.iter=20000, 
+                                 n.burnin=10000, 
+                                 model.file=molinos.model.2.jags)
+
+#Mostrar resultados de la simulación
+print(molinos.fit.model.2.bugs,4)
+
+#Diagnostico de Convergencia
+plot(molinos.fit.model.2.bugs)
+
+#Mostrar resultado por navegador de trace, density, autocorrelation
+#mcmctab(molinos.fit.bugs)
+#mcmcplot(molinos.fit.bugs)
+
+
+####################################################################
+# Modelo Lineal Normal - Modelo 3 : Eta_i= Beta_0 + Beta_1*log(x_i)
+####################################################################
+
+# Inferencia Clásica
+molinos.model.3.clasic<-lm(molinos.data$corriente ~ I(log(molinos.data$viento)))
+summary(molinos.model.3.clasic)
+
+# Aplicando Bayesianos
+molinos.model.3.jags <- function(){
+  # verosimilitud
+  for (i in 1:N) {
+    mu[i] <- alpha + beta1*log(viento[i]);
+    corriente[i] ~ dnorm(mu[i],tau);
+  }
+  
+  alpha  ~ dnorm(0.0,1.0E-4);      # 1er parametro  
+  beta1  ~ dnorm(0.0,1.0E-4);      # 2do parametro
+  tau    ~ dgamma(1.0E-3,1.0E-3);  # 3er parametro , la precisión , uso gamma 
+  
+  # con valores pequeño para tener una varianza grande
+  sigma2 <- 1/tau;
+}
+
+# Inferencia Bayesiana
+molinos.fit.model.3.bugs <- jags(data=molinos.data.bugs, 
+                                 inits=molinos.inits.bugs, 
+                                 molinos.param.bugs, 
+                                 n.chains=2, 
+                                 n.iter=20000, 
+                                 n.burnin=10000, 
+                                 model.file=molinos.model.3.jags)
+
+#Mostrar resultados de la simulación
+print(molinos.fit.model.3.bugs,4)
+
+#Diagnostico de Convergencia
+plot(molinos.fit.model.3.bugs)
+
+#Mostrar resultado por navegador de trace, density, autocorrelation
+#mcmctab(molinos.fit.bugs)
+#mcmcplot(molinos.fit.bugs)
+
+
+df <- data.frame(
+  modelo = c(" Modelo 1",
+             " Modelo 2",
+             " Modelo 3"),
+  DIC = c(molinos.fit.model.1.bugs$BUGSoutput$DIC,
+          molinos.fit.model.2.bugs$BUGSoutput$DIC,
+          molinos.fit.model.3.bugs$BUGSoutput$DIC)
+)
+
+df[order(df$DIC),]
+
+
