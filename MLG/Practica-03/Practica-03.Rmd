@@ -1,0 +1,282 @@
+---
+title: "Práctica Calificada No3"
+author: 'Lourdes Galarza, Jaime Gómez, Julio Gutiérrez'
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output:
+ # pdf_document: default
+  word_document: default
+#  html_document: default
+geometry: margin=1in 
+mainfont: Arial
+fontsize: 11pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Pregunta 1 (20 puntos)
+Se han recolectado datos sobre la velocidad del viento X y la corriente producida Y por un molino de viento a esta velocidad, los cuales se encuentran en el archivo molinos.csv. 
+Para explicar la corriente producida en función de la velocidad del viento se consideró un modelo lineal normal con los siguientes enlaces:
+
+* Modelo 1: $\eta_i = \beta_0 + \beta_1 * x_i$
+* Modelo 2: $\eta_i = \beta_0 + \beta_1 * 1/x_i$
+* Modelo 3: $\eta_i = \beta_0 + \beta_1 * log(x_i)$
+
+
+### (a) Usando WinBUGS a través de R estime los parámetros de los 3 modelos usando inferencia bayesiana. Realice el análisis de convergencia de las simulaciones. (12 p.)
+
+##### Cargando librerias:
+```{r}
+library(coda)
+library(boot)
+library(R2WinBUGS)
+library(mcmcplots)
+```
+##### Conectando con winBUGS:
+```{r}
+#Directorio donde esta instalado WinBUGS
+WINBUGS.DIR <- "D:/bin/WinBUGS14/"
+#Nombre de los códigos BUGS de los 3 modelos
+NAME.FILE.MOD1.BUG <- "Practica03-modelo01.bug"
+NAME.FILE.MOD2.BUG <- "Practica03-modelo02.bug"
+NAME.FILE.MOD3.BUG <- "Practica03-modelo03.bug"
+```
+##### Cargando los datos:
+```{r}
+PATH.FILE <- "https://raw.githubusercontent.com/jgomezz/MscEstadisticaAplicada-UNALM-2018-2/master/MLG/Practica-03/molinos.csv"
+molinos.data <- read.csv(PATH.FILE, header = TRUE)
+head(molinos.data)
+```
+##### Análisis descriptivo:
+```{r}
+plot(molinos.data$viento, molinos.data$corriente)
+```
+
+Se observa que entre las variables corriente y viento hay, aproximadamente, una relación lineal directa.
+
+##### Análisis descriptivo:
+```{r}
+# Datos para el análisis
+molinos.data.bugs <- list(viento = molinos.data$viento ,
+                          corriente = molinos.data$corriente ,
+                          N = nrow(molinos.data))
+
+# Creación de parámetros
+molinos.param.bugs <- c("alpha","beta1","tau","sigma2")
+
+# Inicialización : asigna valores aleatorios para inicializar la simulación
+molinos.inits.bugs <- function() {
+                          list( alpha = rnorm(1), 
+                                beta1 = rnorm(1), 
+                                tau   = rgamma(1,1,1) )}
+```
+
+
+#### Modelo lineal normal 1: $\eta_i = \beta_0 + \beta_1 * x_i$
+
+##### Inferencia Clásica
+```{r}
+molinos.model.1.clasic<-lm(molinos.data$corriente ~ molinos.data$viento)
+summary(molinos.model.1.clasic)
+```
+##### Inferencia Bayesiana
+```{r}
+molinos.model.1.bugs <- function(){
+  # verosimilitud
+  for (i in 1:N) {
+    mu[i] <- alpha + beta1*viento[i];
+    corriente[i] ~ dnorm(mu[i],tau);
+  }
+  # Las priori : estoy usando priori no informativos 
+  # porque le estoy dando un rango amplio ( 0.0 en casi todos los modelos)
+  alpha ~ dnorm(0.0,1.0E-4);      # 1er parametro  
+  beta1 ~ dnorm(0.0,1.0E-4);      # 2do parametro
+  tau    ~ dgamma(1.0E-3,1.0E-3);  # 3er parametro , la precisi?n , uso gamma 
+
+  # con valores pequeños para tener una varianza grande
+  sigma2 <- 1/tau;
+}
+
+# Grabar archivo
+write.model(molinos.model.1.bugs, NAME.FILE.MOD1.BUG)
+
+# Inferencia Bayesiana
+molinos.fit.model.1.bugs <- bugs(data = molinos.data.bugs,
+                                 inits =  molinos.inits.bugs,
+                                 parameters.to.save =  molinos.param.bugs,
+                                 model.file= NAME.FILE.MOD1.BUG,
+                                 n.chains=2, 
+                                 n.iter=20000,
+                                 n.burnin=10000,
+                                 n.thin=1,
+                                 bugs.directory=WINBUGS.DIR,
+                                 clearWD=TRUE, 
+                                 debug=FALSE)
+
+# Resultados de simulación
+print(molinos.fit.model.1.bugs,4)
+```
+
+##### Diagnóstico de Convergencia
+```{r}
+plot(molinos.fit.model.1.bugs)
+```
+
+
+#### Modelo lineal normal 2: $\eta_i = \beta_0 + \beta_1 * 1/x_i$
+
+##### Inferencia Clásica
+```{r}
+molinos.model.2.clasic<-lm(molinos.data$corriente ~ I(1/molinos.data$viento))
+summary(molinos.model.2.clasic)
+```
+##### Aplicando Bayesianos
+```{r}
+molinos.model.2.bugs <- function(){
+  # verosimilitud
+  for (i in 1:N) {
+    mu[i] <- alpha + beta1*(1/viento[i]);
+    corriente[i] ~ dnorm(mu[i],tau);
+  }
+  # Las priori : estoy usando priori no informativos 
+  # porque le estoy dando un rango amplio ( 0.0 en casi todos los modelos)
+  alpha ~ dnorm(0.0,1.0E-4);      # 1er parametro  
+  beta1 ~ dnorm(0.0,1.0E-4);      # 2do parametro
+  tau    ~ dgamma(1.0E-3,1.0E-3);  # 3er parametro , la precisi?n , uso gamma 
+  
+  # con valores pequeños para tener una varianza grande
+  sigma2 <- 1/tau;
+}
+
+# Grabando archivo
+write.model(molinos.model.2.bugs, NAME.FILE.MOD2.BUG)
+
+# Inferencia Bayesiana
+molinos.fit.model.2.bugs <- bugs(data = molinos.data.bugs,
+                                 inits =  molinos.inits.bugs,
+                                 parameters.to.save =  molinos.param.bugs,
+                                 model.file= NAME.FILE.MOD2.BUG,
+                                 n.chains=2, 
+                                 n.iter=20000,
+                                 n.burnin=10000,
+                                 n.thin=1,
+                                 bugs.directory=WINBUGS.DIR,
+                                 clearWD=TRUE, 
+                                 debug=FALSE)
+
+#Mostrar resultados de la simulación
+print(molinos.fit.model.2.bugs,4)
+```
+##### Diagnóstico de Convergencia
+```{r}
+plot(molinos.fit.model.2.bugs)
+```
+
+#### Modelo lineal normal 3:  $\eta_i = \beta_0 + \beta_1 * log(x_i)$
+
+#####  Inferencia Clásica 
+```{r}
+molinos.model.3.clasic<-lm(molinos.data$corriente ~ I(log(molinos.data$viento)))
+summary(molinos.model.3.clasic)
+```
+#####  Aplicando Bayesianos
+```{r}
+molinos.model.3.bugs <- function(){
+  # verosimilitud
+  for (i in 1:N) {
+    mu[i] <- alpha + beta1*log(viento[i]);
+    corriente[i] ~ dnorm(mu[i],tau);
+  }
+  # Las priori : estoy usando priori no informativos 
+  # porque le estoy dando un rango amplio ( 0.0 en casi todos los modelos)
+  alpha ~ dnorm(0.0,1.0E-4);      # 1er parametro  
+  beta1 ~ dnorm(0.0,1.0E-4);      # 2do parametro
+  tau    ~ dgamma(1.0E-3,1.0E-3);  # 3er parametro , la precisi?n , uso gamma 
+  
+  # con valores pequeños para tener una varianza grande
+  sigma2 <- 1/tau;
+}
+
+# Grabar archivo
+write.model(molinos.model.3.bugs, NAME.FILE.MOD3.BUG)
+
+# Inferencia Bayesiana
+molinos.fit.model.3.bugs <- bugs(data = molinos.data.bugs,
+                                 inits =  molinos.inits.bugs,
+                                 parameters.to.save =  molinos.param.bugs,
+                                 model.file= NAME.FILE.MOD3.BUG,
+                                 n.chains=2, 
+                                 n.iter=20000,
+                                 n.burnin=10000,
+                                 n.thin=1,
+                                 bugs.directory=WINBUGS.DIR,
+                                 clearWD=TRUE, 
+                                 debug=FALSE)
+#Mostrar resultados de la simulación
+print(molinos.fit.model.3.bugs,4)
+```
+##### Diagnóstico de Convergencia
+```{r}
+plot(molinos.fit.model.3.bugs)
+```
+
+
+### (b) En base a su respuesta en (a) escoja el mejor modelo (usando el DIC) para explicar la corriente producida en función de la velocidad del viento. Para el modelo escogido verifique si existen observaciones influyentes. (4 p.)
+
+#### Elección del mejor modelo:
+```{r}
+#Comparación de los modelos basados en el DIC : Deviance Information Criterion
+df <- data.frame(
+          modelo = c(" Modelo 1", 
+                     " Modelo 2", 
+                     " Modelo 3"),
+          DIC = c(molinos.fit.model.1.bugs$DIC,
+                  molinos.fit.model.2.bugs$DIC,
+                  molinos.fit.model.3.bugs$DIC)
+          )
+
+df[order(df$DIC),]
+```
+#### El modelo con el DIC más pequeño es el modelo 2, por lo que será el modelo de elección.
+
+#### Interpretación de valores influyentes para el modelo 2 con ajuste clásico
+```{r}
+#source.with.encoding('diag.pois.R', encoding='ISO-8859-1')
+source('http://www.poleto.com/funcoes/diag.norm.txt')
+diag.norm(molinos.model.2.clasic)
+```
+
+Se obtuvieron los gráficos de valores influenciables, en estos podemos verificar según el grafico 1 de valores ajustados vs. distancia de cook que se evidencia, de manera general, y con respecto a las distancia no existe un valor que pueda ser considerado tomado con precaución; sin embargo, se visualiza un dato que se aleja más de la concentración de los otro puntos. Asimismo, y con respecto al grafico de puntos aberrantes, se puede evidenciar que casi la mayoría de los datos tienen un patrón aleatorio, y solo dos puntos se alejan de los limites -2 y 2, aunque este alejamiento no es sustancial por lo que aparentemente no existe ningún valor considerable. El mismo patrón aleatorio se visualiza en el gráfico de influencia localización escala, esto nos mostraría que no existe problemas algún tipo de violación del supuesto de homocedasticidad.
+
+### (c) En base a su respuesta en (b) prediga la corriente producida por un molino cuando la velocidad del viento es de 5,8 (4 p.)
+
+#### Según lo observado en el DIC, se elige el modelo 2 
+
+```{r}
+# Se obtiene la matriz de simulación
+sims.matrix <- molinos.fit.model.2.bugs$sims.matrix
+
+# Se obtiene los coeficientes de las variables predictoras
+p.alpha <- sims.matrix[,"alpha"]
+p.beta1 <- sims.matrix[,"beta1"]
+p.sigma <- 1/sqrt(sims.matrix[,"tau"])
+M       <- nrow(sims.matrix)
+
+# Velocidad de viento es 5.8
+viento <- 5.8 
+
+# Se realiza la predicción
+mu.new  <- p.alpha + p.beta1*(1/viento)
+y.new   <- rnorm(M,mu.new,p.sigma)
+
+summary(mu.new)
+quantile(mu.new,probs=c(0.025,0.975))
+
+summary(y.new)
+quantile(y.new,probs=c(0.025,0.975))
+
+# Resultado
+sprintf("Para un viento de %.2f se tiene una corriente de %.2f",viento, mean(y.new))
+```
+#### Tener en consideración que no se tiene las unidades de viento y corriente para poder incluirlo en el resultado
