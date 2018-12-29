@@ -38,7 +38,7 @@ legend("topleft",col=c("blue","red"),legend =c("hazMale","hazFemale"), lwd=1, bt
 
 #plot(x = tm, y = hazFemale, type = "l")
 
-# Calcula la integral como una suma de las areas de los
+# Calcula la integral como una suma de las áreas de los
 # rectangulos
 tm.diff <- diff(tm)
 LEN <- length(tm.diff)
