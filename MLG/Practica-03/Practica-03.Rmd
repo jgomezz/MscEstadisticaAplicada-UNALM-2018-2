@@ -55,7 +55,7 @@ plot(molinos.data$viento, molinos.data$corriente)
 
 Se observa que entre las variables corriente y viento hay, aproximadamente, una relación lineal directa.
 
-##### Análisis descriptivo:
+##### Definición de datos, parámetros de monitoreo e inicializaciones para el WinBUGS:
 ```{r}
 # Datos para el análisis
 molinos.data.bugs <- list(viento = molinos.data$viento ,
@@ -73,7 +73,7 @@ molinos.inits.bugs <- function() {
 ```
 
 
-#### Modelo lineal normal 1: $\eta_i = \beta_0 + \beta_1 * x_i$
+#### Enlace 1 del modelo lineal normal : $\eta_i = \beta_0 + \beta_1 * x_i$
 
 ##### Inferencia Clásica
 ```{r}
@@ -124,7 +124,7 @@ plot(molinos.fit.model.1.bugs)
 ```
 
 
-#### Modelo lineal normal 2: $\eta_i = \beta_0 + \beta_1 * 1/x_i$
+#### Enlace 2 del modelo lineal normal : $\eta_i = \beta_0 + \beta_1 * 1/x_i$
 
 ##### Inferencia Clásica
 ```{r}
@@ -173,7 +173,7 @@ print(molinos.fit.model.2.bugs,4)
 plot(molinos.fit.model.2.bugs)
 ```
 
-#### Modelo lineal normal 3:  $\eta_i = \beta_0 + \beta_1 * log(x_i)$
+#### Enlace 3 del modelo lineal normal : $\eta_i = \beta_0 + \beta_1 * log(x_i)$
 
 #####  Inferencia Clásica 
 ```{r}
