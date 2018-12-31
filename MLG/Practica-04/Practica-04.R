@@ -178,7 +178,7 @@ legend("topleft",col=c("blue","red","green","orange"),
        legend =c("White males 1940","Black males 1940","White males 2000","Black males 2000"), lwd=1, bty = "n")
 
 ##################################################################
-# 2.3. Consider the survival data in Exercise 1.1 Assuming that 
+# 2.4. Consider the survival data in Exercise 1.1 Assuming that 
 # these observations are from an exponential distribution, find LAMDA
 # ESTIMATE and an estimate of var(lambda ESTIMATE)
 ##################################################################
