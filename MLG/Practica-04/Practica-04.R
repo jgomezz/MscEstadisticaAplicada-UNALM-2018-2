@@ -15,6 +15,7 @@
 #install.packages("survival")
 library(survival)
 head(survexp.us)
+str(survexp.us)
 
 DAYS_BY_YEAR <- 365.25
 #attach(survexp.us)
@@ -153,5 +154,27 @@ report
 # the hazard functions for black males and white males for 1940 and 2000
 ##################################################################
 
+head(survexp.usr)
+str(survexp.usr)
+hazMaleWhite_1940 <- survexp.usr[,"male","white","1940"]
+hazMaleWBlack_1940 <- survexp.usr[,"male","black","1940"]
+hazMaleWhite_2000 <- survexp.usr[,"male","white","2000"]
+hazMaleWBlack_2000 <- survexp.usr[,"male","black","2000"]
+
+tm <- c(0,
+         1/DAYS_BY_YEAR,
+         7/DAYS_BY_YEAR,
+         28/DAYS_BY_YEAR,
+         1:(dim(hazMaleWBlack_2000)-4))  # Cualquier registro de los 4 se utiliza
+
+
+plot(x = tm, log = "y", y = hazMaleWhite_1940, type = "l", col="blue", lwd=1, 
+     ylab ="Hazard", xlab = "Age in years", 
+     main ="Hazard for US males white and black in 1940 vs 2000", ylim=c(1e-07,1e-02))
+lines(x = tm,  y = hazMaleWBlack_1940, type = "l", col="red",lwd=1)
+lines(x = tm,  y = hazMaleWhite_2000, type = "l", col="green",lwd=1)
+lines(x = tm,  y = hazMaleWBlack_2000, type = "l", col="orange",lwd=1)
+legend("topleft",col=c("blue","red","green","orange"),
+       legend =c("White males 1940","Black males 1940","White males 2000","Black males 2000"), lwd=1, bty = "n")
 
 
