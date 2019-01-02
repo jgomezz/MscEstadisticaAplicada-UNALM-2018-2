@@ -1,0 +1,211 @@
+---
+title: "Práctica Calificada No3"
+author: 'Lourdes Galarza, Jaime Gómez, Julio Gutiérrez'
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output:
+ # pdf_document: default
+  word_document: default
+#  html_document: default
+geometry: margin=1in 
+mainfont: Arial
+fontsize: 11pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Pregunta 2.1. Usando la data "survexp.us" descrita en el ejemplo 2.2, grafica las funciones de hazard para hombres y mujeres en 1940 y 2000. Comente los cambios en las tasas de mortalidad en niños.
+
+Primero se realiza la carga de la libreria
+```{r}
+library(survival)
+head(survexp.us)
+str(survexp.us)
+```
+
+Determinamos los parametros
+```{r}
+DAYS_BY_YEAR <- 365.25
+#attach(survexp.us)
+hazMale <- survexp.us[,"male","2004"]
+hazFemale <- survexp.us[,"female","2004"]
+tm <- c(0,
+        1/DAYS_BY_YEAR,
+        7/DAYS_BY_YEAR,
+        28/DAYS_BY_YEAR,
+        1:(dim(hazMale)-4))
+tm
+length(tm)
+dim(hazMale)
+dim(hazFemale)
+```
+
+### Para 1940.
+```{r}
+hazMale_1940 <- survexp.us[,"male","1940"]
+hazFemale_1940 <- survexp.us[,"female","1940"]
+tm_1940 <- c(0,
+             1/DAYS_BY_YEAR,
+             7/DAYS_BY_YEAR,
+             28/DAYS_BY_YEAR,
+             1:(dim(hazMale_1940)-4))
+
+plot(x = tm, log = "y", y = hazFemale_1940, type = "l", col="blue", lwd=1, 
+     ylab ="Hazard", xlab = "Age in years", 
+     main ="Hazard for US males and females 1940", ylim=c(1e-07,1e-02))
+lines(x = tm, y = hazMale_1940, type = "l", col="red",lwd=1)
+legend("topleft",col=c("blue","red"),legend =c("Females","Males"), lwd=1, bty = "n")
+```
+
+Como se evidencia en el grafico, los primeros días y semanas de vida son peligrosos acentuandose mas en los hombres, este riesgo se reduce hasta los primeros anos de vida, sin embargo tiene un ligero crecimiento por los anos 20 el cual se mantiene estable por el lapso de un ano, para finalmente incrementarse en la vida adulta. Los hombres tienen mayor mortalidad frente a las mujeres, sin embargo no es tan marcado.
+
+### Para 2000
+```{r}
+hazMale_2000 <- survexp.us[,"male","2000"]
+hazFemale_2000 <- survexp.us[,"female","2000"]
+tm_2000 <- c(0,
+             1/DAYS_BY_YEAR,
+             7/DAYS_BY_YEAR,
+             28/DAYS_BY_YEAR,
+             1:(dim(hazMale_2000)-4))
+
+plot(x = tm, log = "y", y = hazFemale_2000, type = "l", col="blue", lwd=1, 
+     ylab ="Hazard", xlab = "Age in years", 
+     main ="Hazard for US males and females 2000", ylim=c(1e-07,1e-02))
+lines(x = tm,  y = hazMale_2000, type = "l", col="red",lwd=1)
+legend("topleft",col=c("blue","red"),legend =c("Females","Males"), lwd=1, bty = "n")
+```
+
+Como se evidencia en el grafico, los primeros días y semanas de vida son peligrosos acentuandose mas en los hombres, este riesgo se reduce hasta los primeros anos de vida, sin embargo tiene un ligero crecimiento por los anos 20 el cual se mantiene estable por el lapso de un ano, para finalmente incrementarse en la vida adulta. Los hombres tienen mayor mortalidad frente a las mujeres es cual es mas diferenciable.
+
+### Entre 1940 - 2000
+```{r}
+plot(x = tm, log = "y", y = hazFemale_1940, type = "l", col="blue", lwd=1, 
+     ylab ="Hazard", xlab = "Age in years", 
+     main ="Hazard for US males and females 1940 vs 2000", ylim=c(1e-07,1e-02))
+lines(x = tm,  y = hazMale_1940, type = "l", col="red",lwd=1)
+lines(x = tm,  y = hazFemale_2000, type = "l", col="green",lwd=1)
+lines(x = tm,  y = hazMale_2000, type = "l", col="orange",lwd=1)
+legend("topleft",col=c("blue","red","green","orange"),
+       legend =c("Females 1940","Males 1940","Females 2000","Males 2000"), lwd=1, bty = "n")
+```
+
+Comparando los riesgos entre los dos anos evaluados, los riesgos de mortalidad son mas altos con respecto al ano 1940, sin embargo en ambos anos se evidencia que los riesgos de mortalidad una vez que descienden en la etapa adolescente para ambos anos se incrementan por la edad de los 20 anos, siendo mas evidente en los datos correspondientes al ano 2000. Lo que si se mantiene es que el genero masculino es el que tiene mayor riesgo de mortalidad que el genero femenino.
+
+#Pregunta 2.2.Obtener la edad promedio de muerte de hombres y mujeres para 1940 y 2000.
+
+Se calcula la edad media de fallecimiento calculando el área debajo de la función de Hazard.
+
+```{r}
+tm_1940.diff <- diff(tm_1940)
+LEN <- length(tm_1940.diff)
+survMale_1940 <- exp(-cumsum(hazMale_1940[1:LEN]*tm_1940.diff)*DAYS_BY_YEAR)
+survFemale_1940 <- exp(-cumsum(hazFemale_1940[1:LEN]*tm_1940.diff)*DAYS_BY_YEAR)
+sum(survMale_1940*tm_1940.diff)
+sum(survFemale_1940*tm_1940.diff)
+
+tm_2000.diff <- diff(tm_2000)
+LEN <- length(tm_2000.diff)
+survMale_2000 <- exp(-cumsum(hazMale_2000[1:LEN]*tm_2000.diff)*DAYS_BY_YEAR)
+survFemale_2000 <- exp(-cumsum(hazFemale_2000[1:LEN]*tm_2000.diff)*DAYS_BY_YEAR)
+sum(survMale_2000*tm_2000.diff)
+sum(survFemale_2000*tm_2000.diff)
+
+
+report <- data.frame(
+  year = c("1940"," 2000"),
+  male = c(sum(survMale_1940*tm_1940.diff),
+           sum(survMale_2000*tm_2000.diff)),
+  female = c(sum(survFemale_1940*tm_1940.diff),
+             sum(survFemale_2000*tm_2000.diff))
+)
+
+report
+```
+
+# Pregunta 2.3. El dataset "survexp.usr" en el paquete "survival" tiene 4 dimensiones en un formato similar al dataset "survexp.us", con una dimension adicional de raza (negro o blanco). Grafica las funcion de riesgo para hombres blancos y hombres negros para el año 1940 y 2000.
+
+```{r}
+head(survexp.usr)
+str(survexp.usr)
+hazMaleWhite_1940 <- survexp.usr[,"male","white","1940"]
+hazMaleWBlack_1940 <- survexp.usr[,"male","black","1940"]
+hazMaleWhite_2000 <- survexp.usr[,"male","white","2000"]
+hazMaleWBlack_2000 <- survexp.usr[,"male","black","2000"]
+
+tm <- c(0,
+        1/DAYS_BY_YEAR,
+        7/DAYS_BY_YEAR,
+        28/DAYS_BY_YEAR,
+        1:(dim(hazMaleWBlack_2000)-4))  # Cualquier registro de los 4 se utiliza
+
+
+plot(x = tm, log = "y", y = hazMaleWhite_1940, type = "l", col="blue", lwd=1, 
+     ylab ="Hazard", xlab = "Age in years", 
+     main ="Hazard for US males white and black in 1940 vs 2000", ylim=c(1e-07,1e-02))
+lines(x = tm,  y = hazMaleWBlack_1940, type = "l", col="red",lwd=1)
+lines(x = tm,  y = hazMaleWhite_2000, type = "l", col="green",lwd=1)
+lines(x = tm,  y = hazMaleWBlack_2000, type = "l", col="orange",lwd=1)
+legend("topleft",col=c("blue","red","green","orange"),
+       legend =c("White males 1940","Black males 1940","White males 2000","Black males 2000"), lwd=1, bty = "n")
+```
+
+# Pregunta 2.4. Considerar la data se dobrevivencia del ejericicio 1.1. Asumiendo que estas observaciones provienen de una distribucion exponencial, encontrar lambda estimada y la varianza estimada de lambda.
+
+Recordando que: 
+
+d = sumatoria de phi - censoring indicator ( # de muertes)
+
+V = sumatoria de ti (sumatoria de observaciones)
+
+lambda estimada = d / V
+
+var(lambda estimada) = d / ( V * V )
+
+
+```{r}
+survival.data <- data.frame(patient = c(1,2,3,4,5),
+                            survtime = c(5,5,4,3,1),
+                            status = c(0,0,1,1,1))
+
+d <- sum(survival.data$status)
+V <- sum(survival.data$survtime)
+
+lambda_estimado <- d/V
+lambda_estimado
+
+var_lambda_estimado <- d/V^2
+var_lambda_estimado
+```
+
+# Pregunta 2.5. Considera una distribucion de supervivencia con constante hazard LAMDA = 0.07 con t=0 hasta t=5 y luego un lambda=0.14 para t>5 (Esta es conocida como una constante hazard por trozos.) Grafique esta funcion hazard y la correspondiente funcion de supervivencia para 0 < t < 10. Cual es el tiempo promedio de supervivencia?
+
+```{r}
+ALPHA_EXP <- 1 # Function exponencial
+LAMBDA_1 <- 0.07 
+LAMBDA_2 <- 0.14
+
+weibHaz <- function(x, shape, scale) dweibull(x, shape = shape, scale = scale) / pweibull(x, shape = shape, scale = scale, lower.tail = F)
+
+weibHazCompuesta <- function(x) {
+  if( (x >= 0) && (x < 5)  )
+    weibHaz(x,shape=ALPHA_EXP, scale = 1/LAMBDA_1)
+  else if ((x >= 5) && (x <= 10) )
+    weibHaz(x,shape=ALPHA_EXP, scale = 1/LAMBDA_2)
+}
+
+x1 <- seq(0, 10, by = 0.005)
+y1 <- numeric(length = length(x1))
+
+index <- 1
+for(item in x1){
+  y1[index] <- weibHazCompuesta(item)
+  index <- index  + 1
+}
+
+#x1
+#y1
+
+plot(x1,y1, type = "l", col="blue",lwd=1, ylim=c(0,0.18), main ="Distribucion de Supervivencia")
+```
