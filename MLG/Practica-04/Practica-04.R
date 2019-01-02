@@ -231,9 +231,9 @@ LAMBDA_2 <- 0.14
 weibHaz <- function(x, shape, scale) dweibull(x, shape = shape, scale = scale) / pweibull(x, shape = shape, scale = scale, lower.tail = F)
 
 weibHazCompuesta <- function(x) {
-  if( (x >= 0) && (x < 5)  )
+  if( (x >= 0) && (x <= 5)  )
     weibHaz(x,shape=ALPHA_EXP, scale = 1/LAMBDA_1)
-  else if ((x >= 5) && (x <= 10) )
+  else if ((x > 5) && (x <= 10) )
     weibHaz(x,shape=ALPHA_EXP, scale = 1/LAMBDA_2)
 }
 
@@ -249,12 +249,37 @@ for(item in x1){
 #x1
 #y1
 
-plot(x1,y1, type = "l", col="blue",lwd=1, ylim=c(0,0.18))
+plot(x1, y1, type = "l", col="blue",lwd=1, ylim=c(0,0.18), ylab ="Hazard", xlab = "Age in years", main ="Hazard function")
 
-
-
-
-
-#weibHaz(x,shape=ALPHA_EXP, scale = 1/LAMBDA_1)
-#curve(weibHaz(x,shape=ALPHA_EXP, scale = 1/LAMBDA_1))
+##################################################################
+# Cálculo de la mediana
+##################################################################
+# La mediana se calcula cuando S(t_mediana) = 0.5
+# Como S(t) = exp(-H(t))
+# Entonces  exp(-H(t_mediana)) = 0.5 ==> H(t_mediana) = log(2) 
+# 
+# Pero H(t) es la integral de la función de Hazard, que vendria 
+# hacer el área bajo la curva de Hazard
+# 
+# H(t_mediana) = log(2)
+# H(t_mediana) = 0.6931472
+# 
+# El área bajo la curva esta dado por lo siguiente :
+#   
+# H(t):  
+#   0.07*t                0 <= t <= 5
+#   0.07*5 + 0.14*(t-5)   5 <  t <= 10  
+# 
+# H(t):
+#   0.07*t                0 <= t <= 5
+#   0.35  + 0.14*(t-5)    5 <  t <= 10  
+#   
+# Definitavemente la mediana esta en el segundo bloque
+# porque 0.6931472 > 0.35
+# 
+# Entonces:  0.35 + 0.14*(t_mediana-5) = 0.6931472
+       
+t_mediana <-  (0.6931472-0.35)/0.14 + 5 
+  
+t_mediana
 
