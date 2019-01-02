@@ -216,4 +216,45 @@ lambda_estimado
 var_lambda_estimado <- d/V^2
 var_lambda_estimado
 
+##################################################################
+# 2.5. Consider a survival distribution with constant hazard 
+# lambda = 0.07 from t = 0 until t = 5 and then hazard lambda = 0.14
+# for t > 5 ( This is known as a piecewise constant hazard). Plot
+# this hazard function and the corresponding survival function
+# for 0 < t < 10. What is the median survival time?
+##################################################################
+
+ALPHA_EXP <- 1 # Function exponencial
+LAMBDA_1 <- 0.07 
+LAMBDA_2 <- 0.14
+
+weibHaz <- function(x, shape, scale) dweibull(x, shape = shape, scale = scale) / pweibull(x, shape = shape, scale = scale, lower.tail = F)
+
+weibHazCompuesta <- function(x) {
+  if( (x >= 0) && (x < 5)  )
+    weibHaz(x,shape=ALPHA_EXP, scale = 1/LAMBDA_1)
+  else if ((x >= 5) && (x <= 10) )
+    weibHaz(x,shape=ALPHA_EXP, scale = 1/LAMBDA_2)
+}
+
+x1 <- seq(0, 10, by = 0.005)
+y1 <- numeric(length = length(x1))
+
+index <- 1
+for(item in x1){
+  y1[index] <- weibHazCompuesta(item)
+  index <- index  + 1
+}
+
+#x1
+#y1
+
+plot(x1,y1, type = "l", col="blue",lwd=1, ylim=c(0,0.18))
+
+
+
+
+
+#weibHaz(x,shape=ALPHA_EXP, scale = 1/LAMBDA_1)
+#curve(weibHaz(x,shape=ALPHA_EXP, scale = 1/LAMBDA_1))
 
