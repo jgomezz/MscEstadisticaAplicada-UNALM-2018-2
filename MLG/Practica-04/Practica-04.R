@@ -183,3 +183,37 @@ legend("topleft",col=c("blue","red","green","orange"),
 # ESTIMATE and an estimate of var(lambda ESTIMATE)
 ##################################################################
 
+# Data de exercise 1.1
+#
+#   patient survtime status
+#     1       5       0
+#     2       5       0
+#     3       4       1
+#     4       3       1
+#     5       1       1
+#
+#
+#
+# recordando que 
+#
+#   d = sumatoria de phi - censoring indicator ( # de muertes)
+#   V = sumatoria de ti (sumatoria de observaciones)
+#
+#   lambda estimada = d / V
+#   var(lambda estimada) = d / ( V * V )
+#
+
+survival.data <- data.frame(patient = c(1,2,3,4,5),
+                            survtime = c(5,5,4,3,1),
+                            status = c(0,0,1,1,1))
+
+d <- sum(survival.data$status)
+V <- sum(survival.data$survtime)
+
+lambda_estimado <- d/V
+lambda_estimado
+
+var_lambda_estimado <- d/V^2
+var_lambda_estimado
+
+
