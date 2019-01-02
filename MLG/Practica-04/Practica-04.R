@@ -258,11 +258,11 @@ plot(x1, y1, type = "l", col="blue",lwd=1, ylim=c(0,0.18), ylab ="Hazard", xlab 
 # Como S(t) = exp(-H(t))
 # Entonces  exp(-H(t_mediana)) = 0.5 ==> H(t_mediana) = log(2) 
 # 
-# Pero H(t) es la integral de la función de Hazard, que vendria 
-# hacer el área bajo la curva de Hazard
-# 
 # H(t_mediana) = log(2)
 # H(t_mediana) = 0.6931472
+#
+# Pero H(t) es la integral de la función de Hazard, que vendria 
+# hacer el área bajo la curva de Hazard
 # 
 # El área bajo la curva esta dado por lo siguiente :
 #   
@@ -274,7 +274,7 @@ plot(x1, y1, type = "l", col="blue",lwd=1, ylim=c(0,0.18), ylab ="Hazard", xlab 
 #   0.07*t                0 <= t <= 5
 #   0.35  + 0.14*(t-5)    5 <  t <= 10  
 #   
-# Definitavemente la mediana esta en el segundo bloque
+# Se observa que el valor de la mediana esta en el segundo bloque
 # porque 0.6931472 > 0.35
 # 
 # Entonces:  0.35 + 0.14*(t_mediana-5) = 0.6931472
