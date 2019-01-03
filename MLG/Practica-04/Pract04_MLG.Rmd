@@ -1,5 +1,5 @@
 ---
-title: "Práctica Calificada No3"
+title: "Práctica Calificada No4"
 author: 'Lourdes Galarza, Jaime Gómez, Julio Gutiérrez'
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output:
