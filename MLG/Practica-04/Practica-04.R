@@ -226,7 +226,7 @@ var_lambda_estimado
 
 
 ##################################################################
-# Gráfica de la funcion de Hazard
+# Gráfica de la función de Hazard
 
 ##################################################################
 ALPHA_EXP <- 1 # Distribucion Exponencial para la distribucion Weibull con ALPHA = 1
@@ -286,7 +286,7 @@ t_mediana <-  (0.6931472-0.35)/0.14 + 5
 t_mediana
 
 ##################################################################
-# Gráfica de la funcion de Supervivencia
+# Gráfica de la función de Supervivencia
 
 ##################################################################
 
