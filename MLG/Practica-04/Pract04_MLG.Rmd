@@ -1,6 +1,6 @@
 ---
-title: "Pr�ctica Calificada No3"
-author: 'Lourdes Galarza, Jaime G�mez, Julio Guti�rrez'
+title: "Práctica Calificada No3"
+author: 'Lourdes Galarza, Jaime Gómez, Julio Gutiérrez'
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output:
  # pdf_document: default
@@ -15,33 +15,36 @@ fontsize: 11pt
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-#Pregunta 2.1. Usando la data "survexp.us" descrita en el ejemplo 2.2, grafica las funciones de hazard para hombres y mujeres en 1940 y 2000. Comente los cambios en las tasas de mortalidad en ni�os.
+#Pregunta 2.1. Usando la data "survexp.us" descrita en el ejemplo 2.2, gráfica las funciones de hazard para hombres y mujeres en 1940 y 2000. Comente los cambios en las tasas de mortalidad en niños.
 
-Primero se realiza la carga de la libreria
+Primero se realiza la carga de la librería
 ```{r}
 library(survival)
 head(survexp.us)
 str(survexp.us)
 ```
 
-Determinamos los parametros
+Determinamos los parámetros
 ```{r}
-DAYS_BY_YEAR <- 365.25
-#attach(survexp.us)
+DAYS_BY_YEAR <- 365.25 # se define la cantidad de dias por año , ver libreria survival
+                       # https://cran.r-project.org/web/packages/survival/survival.pdf página 69
+
 hazMale <- survexp.us[,"male","2004"]
 hazFemale <- survexp.us[,"female","2004"]
 tm <- c(0,
         1/DAYS_BY_YEAR,
         7/DAYS_BY_YEAR,
         28/DAYS_BY_YEAR,
-        1:(dim(hazMale)-4))
-tm
+        1:(dim(hazMale)-4)) # se realizá este cambio porque el tamaño de vector tm 
+		                    # debe ser igual al de hazMale y hazFemale
+
+# Se comprueba que los 3 vectores tienen el mismo tamaño							
 length(tm)
 dim(hazMale)
 dim(hazFemale)
 ```
 
-### Para 1940.
+### Mostramos solo la gráfica de Hazard para el año 1940.
 ```{r}
 hazMale_1940 <- survexp.us[,"male","1940"]
 hazFemale_1940 <- survexp.us[,"female","1940"]
@@ -58,9 +61,9 @@ lines(x = tm, y = hazMale_1940, type = "l", col="red",lwd=1)
 legend("topleft",col=c("blue","red"),legend =c("Females","Males"), lwd=1, bty = "n")
 ```
 
-Como se evidencia en el grafico, los primeros d�as y semanas de vida son peligrosos acentuandose mas en los hombres, este riesgo se reduce hasta los primeros anos de vida, sin embargo tiene un ligero crecimiento por los anos 20 el cual se mantiene estable por el lapso de un ano, para finalmente incrementarse en la vida adulta. Los hombres tienen mayor mortalidad frente a las mujeres, sin embargo no es tan marcado.
+Como se evidencia en el gráfico, los primeros días y semanas de vida son peligrosos acentuándose mas en los hombres, este riesgo se reduce hasta los primeros años de vida, sin embargo tiene un ligero crecimiento por los años 20 el cual se mantiene estable por el lapso de un año, para finalmente incrementarse en la vida adulta. Los hombres tienen mayor mortalidad frente a las mujeres, sin embargo no es tan marcado.
 
-### Para 2000
+### Mostramos solo la gráfica de Hazard para el año 2000.
 ```{r}
 hazMale_2000 <- survexp.us[,"male","2000"]
 hazFemale_2000 <- survexp.us[,"female","2000"]
@@ -77,9 +80,9 @@ lines(x = tm,  y = hazMale_2000, type = "l", col="red",lwd=1)
 legend("topleft",col=c("blue","red"),legend =c("Females","Males"), lwd=1, bty = "n")
 ```
 
-Como se evidencia en el grafico, los primeros d�as y semanas de vida son peligrosos acentuandose mas en los hombres, este riesgo se reduce hasta los primeros anos de vida, sin embargo tiene un ligero crecimiento por los anos 20 el cual se mantiene estable por el lapso de un ano, para finalmente incrementarse en la vida adulta. Los hombres tienen mayor mortalidad frente a las mujeres es cual es mas diferenciable.
+Como se evidencia en el gráfico, los primeros días y semanas de vida son peligrosos acentuándose mas en los hombres, este riesgo se reduce hasta los primeros años de vida, sin embargo tiene un ligero crecimiento por los años 20 el cual se mantiene estable por el lapso de un año, para finalmente incrementarse en la vida adulta. Los hombres tienen mayor mortalidad frente a las mujeres es cual es mas diferenciable.
 
-### Entre 1940 - 2000
+### Mostramos las gráfica de Hazard para los años 1940 y 2000.
 ```{r}
 plot(x = tm, log = "y", y = hazFemale_1940, type = "l", col="blue", lwd=1, 
      ylab ="Hazard", xlab = "Age in years", 
@@ -91,11 +94,11 @@ legend("topleft",col=c("blue","red","green","orange"),
        legend =c("Females 1940","Males 1940","Females 2000","Males 2000"), lwd=1, bty = "n")
 ```
 
-Comparando los riesgos entre los dos anos evaluados, los riesgos de mortalidad son mas altos con respecto al ano 1940, sin embargo en ambos anos se evidencia que los riesgos de mortalidad una vez que descienden en la etapa adolescente para ambos anos se incrementan por la edad de los 20 anos, siendo mas evidente en los datos correspondientes al ano 2000. Lo que si se mantiene es que el genero masculino es el que tiene mayor riesgo de mortalidad que el genero femenino.
+Comparando los riesgos entre los dos años evaluados, los riesgos de mortalidad son mas altos con respecto al año 1940, sin embargo en ambos años se evidencia que los riesgos de mortalidad una vez que descienden en la etapa adolescente para ambos años se incrementan por la edad de los 20 años, siendo mas evidente en los datos correspondientes al ano 2000. Lo que si se mantiene es que el género masculino es el que tiene mayor riesgo de mortalidad que el género femenino.
 
 #Pregunta 2.2.Obtener la edad promedio de muerte de hombres y mujeres para 1940 y 2000.
 
-Se calcula la edad media de fallecimiento calculando el �rea debajo de la funci�n de Hazard.
+Se calcula la edad media de fallecimiento calculando el área debajo de la gráfica de la función de Hazard.
 
 ```{r}
 tm_1940.diff <- diff(tm_1940)
@@ -124,7 +127,7 @@ report <- data.frame(
 report
 ```
 
-# Pregunta 2.3. El dataset "survexp.usr" en el paquete "survival" tiene 4 dimensiones en un formato similar al dataset "survexp.us", con una dimension adicional de raza (negro o blanco). Grafica las funcion de riesgo para hombres blancos y hombres negros para el a�o 1940 y 2000.
+# Pregunta 2.3. El dataset "survexp.usr" en el paquete "survival" tiene 4 dimensiones en un formato similar al dataset "survexp.us", con una dimensión adicional de raza (negro o blanco). Grafica las función de riesgo para hombres blancos y hombres negros para el año 1940 y 2000.
 
 ```{r}
 head(survexp.usr)
@@ -151,7 +154,7 @@ legend("topleft",col=c("blue","red","green","orange"),
        legend =c("White males 1940","Black males 1940","White males 2000","Black males 2000"), lwd=1, bty = "n")
 ```
 
-# Pregunta 2.4. Considerar la data se dobrevivencia del ejericicio 1.1. Asumiendo que estas observaciones provienen de una distribucion exponencial, encontrar lambda estimada y la varianza estimada de lambda.
+# Pregunta 2.4. Considerar la data se sobrevivencia del ejercicio 1.1. Asumiendo que estas observaciones provienen de una distribucion exponencial, encontrar lambda estimada y la varianza estimada de lambda.
 
 Recordando que: 
 
@@ -179,13 +182,14 @@ var_lambda_estimado <- d/V^2
 var_lambda_estimado
 ```
 
-# Pregunta 2.5. Considera una distribucion de supervivencia con constante hazard LAMDA = 0.07 con t=0 hasta t=5 y luego un lambda=0.14 para t>5 (Esta es conocida como una constante hazard por trozos.) Grafique esta funcion hazard y la correspondiente funcion de supervivencia para 0 < t < 10. Cual es el tiempo promedio de supervivencia?
+# Pregunta 2.5. Considera una distribución de supervivencia con constante hazard LAMDA = 0.07 con t=0 hasta t=5 y luego un lambda=0.14 para t>5 (Esta es conocida como una piecewise constant Hazard ) Gráfique esta función Hazard y la correspondiente función de supervivencia para 0 < t < 10. ¿Cuál es la mediana del tiempo de supervivencia?
 
 ```{r}
-ALPHA_EXP <- 1 # Function exponencial
+ALPHA_EXP <- 1 # Función exponencial
 LAMBDA_1 <- 0.07 
 LAMBDA_2 <- 0.14
 
+# Usamos la función 
 weibHaz <- function(x, shape, scale) dweibull(x, shape = shape, scale = scale) / pweibull(x, shape = shape, scale = scale, lower.tail = F)
 
 weibHazCompuesta <- function(x) {
@@ -204,8 +208,47 @@ for(item in x1){
   index <- index  + 1
 }
 
-#x1
-#y1
 
-plot(x1,y1, type = "l", col="blue",lwd=1, ylim=c(0,0.18), main ="Distribucion de Supervivencia")
+plot(x1, y1, type = "l", col="blue",lwd=1, ylim=c(0,0.18), ylab ="Hazard", xlab = "Age in years", main ="Hazard function")
+
+#plot(x1,y1, type = "l", col="blue",lwd=1, ylim=c(0,0.18), main ="Distribución de Supervivencia")
 ```
+
+Con respecto al calculo de la mediana:
+
+La mediana se calcula cuando S(t_mediana) = 0.5
+
+Como S(t) = exp(-H(t))
+
+Entonces  exp(-H(t_mediana)) = 0.5 ==> H(t_mediana) = log(2) 
+
+H(t_mediana) = log(2)
+
+H(t_mediana) = 0.6931472
+
+Pero H(t) es la integral de la función de Hazard, que vendria a ser el área bajo la curva de Hazard.
+ 
+El área bajo la curva esta dado por lo siguiente :
+  
+H(t):
+
+0.07xt               0 <= t <= 5
+ 
+0.07x5 + 0.14x(t-5)  5 <  t <= 10
+
+H(t):
+
+0.07xt               0 <= t <= 5
+
+0.35 + 0.14x(t-5)    5 <  t <= 10
+  
+Se observa que el valor de la mediana esta en el segundo bloque porque 0.6931472 > 0.35
+ 
+Entonces: 0.35 + 0.14x(t_mediana-5) = 0.6931472
+
+```{r}       
+t_mediana <-  (0.6931472-0.35)/0.14 + 5 
+t_mediana
+```
+
+EL tiempo mediano de supervivencia es de 7.45 años.
