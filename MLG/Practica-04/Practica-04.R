@@ -224,7 +224,12 @@ var_lambda_estimado
 # for 0 < t < 10. What is the median survival time?
 ##################################################################
 
-ALPHA_EXP <- 1 # Function exponencial
+
+##################################################################
+# Gráfica de la funcion de Hazard
+
+##################################################################
+ALPHA_EXP <- 1 # Distribucion Exponencial para la distribucion Weibull con ALPHA = 1
 LAMBDA_1 <- 0.07 
 LAMBDA_2 <- 0.14
 
@@ -246,10 +251,7 @@ for(item in x1){
   index <- index  + 1
 }
 
-#x1
-#y1
-
-plot(x1, y1, type = "l", col="blue",lwd=1, ylim=c(0,0.18), ylab ="Hazard", xlab = "Age in years", main ="Hazard function")
+plot(x1, y1, type = "l", col="blue",lwd=1, ylim=c(0,0.18), ylab ="Hazard", xlab = "Time", main ="Hazard function")
 
 ##################################################################
 # Cálculo de la mediana
@@ -282,4 +284,37 @@ plot(x1, y1, type = "l", col="blue",lwd=1, ylim=c(0,0.18), ylab ="Hazard", xlab 
 t_mediana <-  (0.6931472-0.35)/0.14 + 5 
   
 t_mediana
+
+##################################################################
+# Gráfica de la funcion de Supervivencia
+
+##################################################################
+
+# S(t) = exp(-H(t))  # Ecuación 2.2.1 pag 14
+#
+# Entonces
+# 
+# S(t):
+#    exp(-0.07*t)             0 <= t <= 5
+#    exp(-0.35-0.14*(t-5))    5 <  t <= 10
+    
+survCompuesta <- function(t) {
+  if( (t >= 0) && (t <= 5)  )
+    exp(-0.07*t)
+  else if ((t > 5) && (t <= 10) )
+    exp(-0.35-0.14*(t-5))
+}  
+
+
+x2 <- seq(0, 10, by = 0.005)
+y2 <- numeric(length = length(x2))
+
+index <- 1
+for(item in x2){
+  y2[index] <- survCompuesta(item)
+  index <- index  + 1
+}
+
+
+plot(x2, y2, type = "l", col="blue",lwd=1, ylab ="Survival", xlab = "Time", main ="Survival function")
 
